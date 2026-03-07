@@ -26,7 +26,9 @@ final class NotificationServiceProxy implements InvocationHandler {
             case "cancelToast":
                 // 将包名修改成系统包名，这样就可以绕过系统的拦截
                 // 部分华为机将 enqueueToast 方法名修改成了 enqueueToastEx
-                args[0] = "android";
+                if (args != null && args.length > 0 && args[0] instanceof String) {
+                    args[0] = "android";
+                }
                 break;
             default:
                 break;

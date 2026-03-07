@@ -5,7 +5,6 @@ import android.app.Application;
 import android.os.Build;
 import android.os.Handler;
 import android.widget.Toast;
-
 import java.lang.reflect.Field;
 
 /**
@@ -18,25 +17,15 @@ import java.lang.reflect.Field;
 @SuppressWarnings("all")
 public class SafeToast extends NotificationToast {
 
-    /** 是否已经 Hook 了一次 TN 内部类 */
-    private boolean mHookTN;
+    {
+        hookToastTN();
+    }
 
     public SafeToast(Application application) {
         super(application);
     }
 
-    @Override
-    public void show() {
-        hookToastTN();
-        super.show();
-    }
-
     private void hookToastTN() {
-        if (mHookTN) {
-            return;
-        }
-        mHookTN = true;
-
         try {
             // 获取 Toast.mTN 字段对象
             Field tnField = Toast.class.getDeclaredField("mTN");

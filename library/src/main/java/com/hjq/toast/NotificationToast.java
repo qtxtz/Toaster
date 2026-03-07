@@ -3,7 +3,6 @@ package com.hjq.toast;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.widget.Toast;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -16,26 +15,17 @@ import java.lang.reflect.Proxy;
  */
 public class NotificationToast extends SystemToast {
 
-    /** 是否已经 Hook 了一次通知服务 */
-    private static boolean sHookService;
+    static {
+        hookNotificationService();
+    }
 
     public NotificationToast(Application application) {
         super(application);
     }
 
-    @Override
-    public void show() {
-        hookNotificationService();
-        super.show();
-    }
-
     @SuppressLint({"DiscouragedPrivateApi", "PrivateApi"})
     @SuppressWarnings({"JavaReflectionMemberAccess", "SoonBlockedPrivateApi"})
     private static void hookNotificationService() {
-        if (sHookService) {
-            return;
-        }
-        sHookService = true;
         try {
             // 获取到 Toast 中的 getService 静态方法
             Method getServiceMethod = Toast.class.getDeclaredMethod("getService");
@@ -50,10 +40,11 @@ public class NotificationToast extends SystemToast {
                     Proxy.getInvocationHandler(notificationManagerSourceObject) instanceof NotificationServiceProxy) {
                 return;
             }
-            Object notificationManagerProxyObject = Proxy.newProxyInstance(
-                    Thread.currentThread().getContextClassLoader(),
-                    new Class[]{Class.forName("android.app.INotificationManager")},
-                    new NotificationServiceProxy(notificationManagerSourceObject));
+
+            ClassLoader classLoader = notificationManagerSourceObject.getClass().getClassLoader();
+            Class<?> clazz = Class.forName("android.app.INotificationManager", false, classLoader);
+            Object notificationManagerProxyObject = Proxy.newProxyInstance(classLoader, new Class[]{clazz},
+                                                        new NotificationServiceProxy(notificationManagerSourceObject));
             // 将原来的 INotificationManager$Stub$Proxy 替换掉
             Field serviceField = Toast.class.getDeclaredField("sService");
             serviceField.setAccessible(true);

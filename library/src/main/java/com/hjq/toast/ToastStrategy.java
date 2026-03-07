@@ -337,7 +337,7 @@ public class ToastStrategy implements IToastStrategy {
                 Method method = appOps.getClass().getMethod("checkOpNoThrow",
                         Integer.TYPE, Integer.TYPE, String.class);
                 Field field = appOps.getClass().getDeclaredField("OP_POST_NOTIFICATION");
-                int value = (int) field.get(Integer.class);
+                int value = field.getInt(null);
                 return ((int) method.invoke(appOps, value, context.getApplicationInfo().uid,
                         context.getPackageName())) == AppOpsManager.MODE_ALLOWED;
             } catch (NoSuchMethodException | NoSuchFieldException | InvocationTargetException |

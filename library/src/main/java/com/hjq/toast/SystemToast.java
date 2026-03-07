@@ -4,7 +4,6 @@ import android.app.Application;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.hjq.toast.config.IToast;
 
 /**
@@ -35,8 +34,9 @@ public class SystemToast extends Toast implements IToast {
 
     @Override
     public void setText(CharSequence text) {
-        super.setText(text);
         if (mMessageView == null) {
+            // Github issue 地址：https://github.com/getActivity/Toaster/issues/160
+            super.setText(text);
             return;
         }
         mMessageView.setText(text);

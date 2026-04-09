@@ -1,6 +1,5 @@
 package com.hjq.toast.config;
 
-import android.app.Application;
 import com.hjq.toast.ToastParams;
 
 /**
@@ -10,11 +9,6 @@ import com.hjq.toast.ToastParams;
  *    desc   : Toast 处理策略
  */
 public interface IToastStrategy {
-
-    /**
-     * 注册策略
-     */
-    void registerStrategy(Application application);
 
     /**
      * 计算 Toast 显示时长

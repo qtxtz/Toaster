@@ -76,7 +76,7 @@ public final class Toaster {
 
         // 初始化 Toast 策略
         if (strategy == null) {
-            strategy = new ToastStrategy();
+            strategy = new ToastStrategy(application);
         }
         setStrategy(strategy);
 
@@ -289,7 +289,6 @@ public final class Toaster {
             return;
         }
         sToastStrategy = strategy;
-        sToastStrategy.registerStrategy(sApplication);
     }
 
     public static IToastStrategy getStrategy() {

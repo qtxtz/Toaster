@@ -1,5 +1,6 @@
 package com.hjq.toast;
 
+import android.content.Context;
 import android.view.View;
 import android.widget.TextView;
 import com.hjq.toast.config.IToast;
@@ -11,6 +12,8 @@ import com.hjq.toast.config.IToast;
  *    desc   : 自定义 Toast 基类
  */
 public abstract class CustomToast implements IToast {
+
+    private final Context mContext;
 
     /** Toast 布局 */
     private View mView;
@@ -34,6 +37,15 @@ public abstract class CustomToast implements IToast {
     private int mShortDuration = 2000;
     /** 长吐司显示的时长，参考至 NotificationManagerService.LONG_DELAY */
     private int mLongDuration = 3500;
+
+    public CustomToast(Context context) {
+        mContext = context;
+    }
+
+    @Override
+    public Context getContext() {
+        return mContext;
+    }
 
     @Override
     public void setText(int id) {

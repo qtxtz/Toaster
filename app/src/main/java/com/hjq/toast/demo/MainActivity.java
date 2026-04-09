@@ -153,7 +153,7 @@ public final class MainActivity extends AppCompatActivity {
     }
 
     public void switchToastStrategy(View v) {
-        Toaster.setStrategy(new ToastStrategy(ToastStrategy.SHOW_STRATEGY_TYPE_QUEUE));
+        Toaster.setStrategy(new ToastStrategy(getApplication(), ToastStrategy.SHOW_STRATEGY_TYPE_QUEUE));
         Toaster.show(R.string.demo_switch_to_toast_queuing_strategy_result);
         findViewById(R.id.tv_main_thrice_show).setVisibility(View.VISIBLE);
     }

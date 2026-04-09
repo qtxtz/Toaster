@@ -1,6 +1,7 @@
 package com.hjq.toast;
 
 import android.app.Application;
+import android.content.Context;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -15,11 +16,19 @@ import com.hjq.toast.config.IToast;
 @SuppressWarnings("deprecation")
 public class SystemToast extends Toast implements IToast {
 
+    private final Application mApplication;
+
     /** 吐司消息 View */
     private TextView mMessageView;
 
     public SystemToast(Application application) {
         super(application);
+        mApplication = application;
+    }
+
+    @Override
+    public Context getContext() {
+        return mApplication;
     }
 
     @Override

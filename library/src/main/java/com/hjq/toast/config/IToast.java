@@ -1,5 +1,6 @@
 package com.hjq.toast.config;
 
+import android.content.Context;
 import android.view.View;
 import android.widget.TextView;
 
@@ -11,6 +12,11 @@ import android.widget.TextView;
  */
 @SuppressWarnings("unused")
 public interface IToast {
+
+    /**
+     * 获取上下文对象
+     */
+    Context getContext();
 
     /**
      * 显示

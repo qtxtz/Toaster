@@ -14,6 +14,7 @@ public class ActivityToast extends CustomToast {
     private final ToastImpl mToastImpl;
 
     public ActivityToast(Activity activity) {
+        super(activity);
         mToastImpl = new ToastImpl(activity, this);
     }
 

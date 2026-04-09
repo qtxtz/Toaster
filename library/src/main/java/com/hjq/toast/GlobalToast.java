@@ -14,6 +14,7 @@ public class GlobalToast extends CustomToast {
     private final ToastImpl mToastImpl;
 
     public GlobalToast(Application application) {
+        super(application);
         mToastImpl = new ToastImpl(application, this);
     }
 

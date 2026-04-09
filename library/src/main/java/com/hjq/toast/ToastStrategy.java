@@ -50,7 +50,7 @@ public class ToastStrategy implements IToastStrategy {
     private static final Handler HANDLER = new Handler(Looper.getMainLooper());
 
     /** 应用上下文 */
-    private Application mApplication;
+    private final Application mApplication;
 
     /** Toast 对象 */
     private WeakReference<IToast> mToastReference;
@@ -61,11 +61,12 @@ public class ToastStrategy implements IToastStrategy {
     /** 上一个 Toast 显示的时间 */
     private volatile long mLastShowToastMillis;
 
-    public ToastStrategy() {
-        this(ToastStrategy.SHOW_STRATEGY_TYPE_IMMEDIATELY);
+    public ToastStrategy(Application application) {
+        this(application, ToastStrategy.SHOW_STRATEGY_TYPE_IMMEDIATELY);
     }
 
-    public ToastStrategy(int type) {
+    public ToastStrategy(Application application, int type) {
+        mApplication = application;
         mShowStrategyType = type;
         switch (mShowStrategyType) {
             case SHOW_STRATEGY_TYPE_IMMEDIATELY:
@@ -77,25 +78,22 @@ public class ToastStrategy implements IToastStrategy {
     }
 
     @Override
-    public void registerStrategy(Application application) {
-        mApplication = application;
-    }
-
-    @Override
     public int computeShowDuration(CharSequence text) {
         return text.length() > 20 ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT;
     }
 
     @Override
     public IToast createToast(ToastParams params) {
-        Activity toastActivity = getToastActivity();
+        final Application application = getApplication();
+        final Activity toastActivity = getToastActivity();
+
         IToast toast;
         if ((params.priorityType == ToastParams.PRIORITY_TYPE_DEFAULT ||
             params.priorityType == ToastParams.PRIORITY_TYPE_GLOBAL) &&
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-            Settings.canDrawOverlays(mApplication)) {
+            Settings.canDrawOverlays(application)) {
             // 如果有悬浮窗权限，就开启全局的 Toast
-            toast = new GlobalToast(mApplication);
+            toast = new GlobalToast(application);
         } else if (toastActivity != null &&
             (params.priorityType == ToastParams.PRIORITY_TYPE_DEFAULT ||
                 params.priorityType == ToastParams.PRIORITY_TYPE_LOCAL)) {
@@ -103,18 +101,18 @@ public class ToastStrategy implements IToastStrategy {
             toast = new ActivityToast(toastActivity);
         } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.N_MR1) {
             // 处理 Android 7.1 上 Toast 在主线程被阻塞后会导致报错的问题
-            toast = new SafeToast(mApplication);
+            toast = new SafeToast(application);
         } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q &&
-            !areNotificationsEnabled(mApplication)) {
+            !areNotificationsEnabled(application)) {
             // 处理 Toast 关闭通知栏权限之后无法弹出的问题
             // 通过查看和对比 NotificationManagerService 的源码
             // 发现这个问题已经在 Android 10 版本上面修复了
             // 但是 Toast 只能在前台显示，没有通知栏权限后台 Toast 仍然无法显示
             // 并且 Android 10 刚好禁止了 Hook 通知服务
             // 已经有通知栏权限，不需要 Hook 系统通知服务也能正常显示系统 Toast
-            toast = new NotificationToast(mApplication);
+            toast = new NotificationToast(application);
         } else {
-            toast = new SystemToast(mApplication);
+            toast = new SystemToast(application);
         }
         if (areSupportCustomToastStyle(toast) || !onlyShowSystemToastStyle()) {
             diyToastStyle(toast, params.style);
@@ -182,7 +180,7 @@ public class ToastStrategy implements IToastStrategy {
      * 定制 Toast 的样式
      */
     protected void diyToastStyle(IToast toast, IToastStyle<?> style) {
-        toast.setView(style.createView(mApplication));
+        toast.setView(style.createView(toast.getContext()));
         toast.setGravity(style.getGravity(), style.getXOffset(), style.getYOffset());
         toast.setMargin(style.getHorizontalMargin(), style.getVerticalMargin());
     }
@@ -347,6 +345,13 @@ public class ToastStrategy implements IToastStrategy {
             }
         }
         return true;
+    }
+
+    /**
+     * 获取 Application 对象
+     */
+    protected Application getApplication() {
+        return mApplication;
     }
 
     /**

@@ -44,8 +44,13 @@ public class SystemToast extends Toast implements IToast {
     @Override
     public void setText(CharSequence text) {
         if (mMessageView == null) {
-            // Github issue 地址：https://github.com/getActivity/Toaster/issues/160
-            super.setText(text);
+            try {
+                super.setText(text);
+            } catch (Exception e) {
+                // Github issue 地址：https://github.com/getActivity/Toaster/issues/160
+                // java.lang.RuntimeException: This Toast was not created with Toast.makeText()
+                e.printStackTrace();
+            }
             return;
         }
         mMessageView.setText(text);
